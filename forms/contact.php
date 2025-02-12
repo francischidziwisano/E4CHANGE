@@ -1,17 +1,32 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = htmlspecialchars($_POST["name"]);
-    $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
-    $message = htmlspecialchars($_POST["message"]);
+use PHPMailer\PHPMailer\src\PHPMailer;
+use PHPMailer\PHPMailer\src\Exception;
 
-    $to = "franchidzi@gmail.com"; // Change to your email
-    $subject = "New Contact Form Submission from $name";
-    $headers = "From: $email\r\nReply-To: $email\r\nContent-Type: text/plain; charset=UTF-8\r\n";
+require 'vendor/autoload.php'; // Include PHPMailer
 
-    if (mail($to, $subject, $message, $headers)) {
-        echo "Email sent successfully!";
-    } else {
-        echo "Failed to send email.";
-    }
+$mail = new PHPMailer(true);
+
+try {
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com'; // SMTP server
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'your-email@gmail.com';
+    $mail->Password   = 'your-email-password'; // Use App Password if 2FA enabled
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = 587;
+
+    // Email Headers
+    $mail->setFrom('your-email@gmail.com', 'Your Name');
+    $mail->addAddress('recipient@example.com'); // Change this
+
+    // Email Content
+    $mail->isHTML(false);
+    $mail->Subject = 'Test Email from PHPMailer';
+    $mail->Body    = 'This is a test email sent via PHPMailer.';
+
+    $mail->send();
+    echo '✅ Email sent successfully!';
+} catch (Exception $e) {
+    echo "❌ Email sending failed: {$mail->ErrorInfo}";
 }
 ?>
